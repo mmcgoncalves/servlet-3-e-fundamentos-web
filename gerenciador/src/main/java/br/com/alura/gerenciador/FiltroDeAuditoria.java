@@ -23,12 +23,10 @@ public class FiltroDeAuditoria implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest req = (HttpServletRequest) request;
-		Cookie cookie = getUsuario(req);
-		String usuario = "<deslogado>";
-		if (cookie != null)
-			usuario = cookie.getValue();
-		System.out.println("Usuario " + usuario + " acessando a URI "
-				+ req.getRequestURI());
+		String uri = req.getRequestURI();
+		String usuario = getUsuario(req);
+
+		System.out.println("Usuario " + usuario + " acessando a URI " + uri);
 		chain.doFilter(request, response);
 	}
 
@@ -36,17 +34,15 @@ public class FiltroDeAuditoria implements Filter {
 	public void init(FilterConfig arg0) throws ServletException {
 
 	}
-
-	private Cookie getUsuario(HttpServletRequest req) {
-		Cookie[] cookies = req.getCookies();
-		if (cookies == null)
-			return null;
-		for (Cookie cookie : cookies) {
-			if (cookie.getName().equals("usuario.logado")) {
-				return cookie;
-			}
-		}
-		return null;
+	
+	private String getUsuario(HttpServletRequest req){
+		Usuario usuario = (Usuario) req.getSession().getAttribute("usuarioLogado");
+		
+		if(usuario == null) return "<deslogado>";
+		
+		return usuario.getEmail();
 	}
+
+	
 
 }
